@@ -1,6 +1,6 @@
-package com.insuranceClaim.state
+package com.advanceClaim.state
 
-import com.insuranceClaim.schema.UnderwritingSchemaVI
+import com.advanceClaim.schema.ClaimSchemaV1
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
@@ -17,43 +17,47 @@ import net.corda.core.schemas.QueryableState
  *
  * @param value the amount of the Claim.
  * @param insurerNode the party issuing the Claim (Insurance Company).
- * @param underwriterNode the Undertaking party for the Claim.
+ * @param applicantNode the party applying for the Claim.
  */
 
-data class UnderwritingState(
-                val insurerNode: Party,
-                val underwriterNode: Party,
-                val fname: String,
-                val lname: String,
-                val insuranceID: String,
-                val type: String,
-                val value:Int,
-                val reason: String,
-                var approvedAmount: Int,
-                var insuranceStatus: String,
-                override var linearId: UniqueIdentifier = UniqueIdentifier()):
+data class ClaimState(
+        val applicantNode: Party,
+        val advanceMoneyNode: Party,
+        val fname: String,
+        val lname: String,
+        val address: String,
+        var advanceMoneyID: String,
+        val type: String,
+        val value: Int,
+        val reason: String,
+        val approvedAmount:Int,
+        var advanceMoneyStatus: String,
+        var referenceID: String,
+        override val linearId: UniqueIdentifier = UniqueIdentifier()):
         LinearState, QueryableState {
     /** The public keys of the involved parties. */
-    override val participants: List<AbstractParty> get() = listOf(insurerNode, underwriterNode)
+    override val participants: List<AbstractParty> get() = listOf(advanceMoneyNode,applicantNode)
 
     override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {
-            is UnderwritingSchemaVI -> UnderwritingSchemaVI.PersistentUnderwriting(
-                    this.insurerNode.name.toString(),
-                    this.underwriterNode.name.toString(),
+            is ClaimSchemaV1 -> ClaimSchemaV1.PersistentClaim(
+                    this.applicantNode.name.toString(),
+                    this.advanceMoneyNode.name.toString(),
                     this.fname,
                     this.lname,
-                    this.insuranceID,
+                    this.address,
+                    this.advanceMoneyID,
                     this.type,
                     this.value,
                     this.reason,
                     this.approvedAmount,
-                    this.insuranceStatus,
+                    this.advanceMoneyStatus,
+                    this.referenceID,
                     this.linearId.id
             )
             else -> throw IllegalArgumentException("Unrecognised schema $schema")
         }
     }
 
-    override fun supportedSchemas(): Iterable<MappedSchema> = listOf(UnderwritingSchemaVI)
+    override fun supportedSchemas(): Iterable<MappedSchema> = listOf(ClaimSchemaV1)
 }

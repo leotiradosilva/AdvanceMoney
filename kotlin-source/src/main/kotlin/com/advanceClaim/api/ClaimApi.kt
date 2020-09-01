@@ -1,11 +1,11 @@
-package com.insuranceClaim.api
+package com.advanceClaim.api
 
-import com.insuranceClaim.flow.ApplyClaimFlow
-import com.insuranceClaim.flow.UnderwritingCreationFlow
-import com.insuranceClaim.flow.ClaimResponseFlow
-import com.insuranceClaim.flow.UnderwritingResponseFlow
-import com.insuranceClaim.state.ClaimState
-import com.insuranceClaim.state.UnderwritingState
+import com.advanceClaim.flow.ApplyClaimFlow
+import com.advanceClaim.flow.UnderwritingCreationFlow
+import com.advanceClaim.flow.ClaimResponseFlow
+import com.advanceClaim.flow.UnderwritingResponseFlow
+import com.advanceClaim.state.ClaimState
+import com.advanceClaim.state.UnderwritingState
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.vaultQueryBy
@@ -52,7 +52,7 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
                 .filter { it.organisation !in (SERVICE_NAMES + myLegalName.organisation) })
     }
     /**
-     * Displays all Insurance ClaimApplication states that exist in the node's vault.
+     * Displays all Advance Money ClaimApplication states that exist in the node's vault.
      */
     @GET
     @Path("ApplicationStates")
@@ -66,28 +66,28 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
     fun getUnderwritingStates() = rpcOps.vaultQueryBy<UnderwritingState>().states
 
     /**
-     * Initiates Insurance ClaimApplication flow.
+     * Initiates Advance Money ClaimApplication flow.
      */
     @PUT
-    @Path("create-insurance")
+    @Path("create-advancemoney")
     fun createInsurance(@QueryParam("value") value: Int,
                         @QueryParam("reason") reason: String,
-                        @QueryParam("insuranceID") insuranceID: String,
+                        @QueryParam("advanceMoneyID") advanceMoneyID: String,
                         @QueryParam("type") type: String,
                         @QueryParam ("fname") fname: String,
                         @QueryParam ("lname") lname: String,
                         @QueryParam ("address") address: String): Response
     {
-        val insuranceStatus: String = "RECEIVED"
+        val advanceMoneyStatus: String = "RECEIVED"
         val companyName=CordaX500Name.parse("O=PartyB, L=New York, C=US")
-        val insurerNode = rpcOps.wellKnownPartyFromX500Name(companyName) ?:
+        val advanceMoneyNode = rpcOps.wellKnownPartyFromX500Name(companyName) ?:
         return Response.status(BAD_REQUEST).entity("Company named $companyName cannot be found.\n").build()
 
         if (value <= 0) {
             return Response.status(BAD_REQUEST).entity(" parameter 'value' must be non-negative.\n").build()
         }
 
-        if (insuranceID == null) {
+        if (advanceMoneyID == null) {
             return Response.status(BAD_REQUEST).entity(" Insurance ID is missing.\n").build()
         }
 
@@ -101,7 +101,7 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
 
         return try {
             val signedTx = rpcOps
-                    .startFlowDynamic(ApplyClaimFlow.ClaimInitiator::class.java,insurerNode,value,reason,fname,lname,address,insuranceID,type,insuranceStatus).returnValue.getOrThrow()
+                    .startFlowDynamic(ApplyClaimFlow.ClaimInitiator::class.java,advanceMoneyNode,value,reason,fname,lname,address,advanceMoneyID,type,advanceMoneyStatus).returnValue.getOrThrow()
             Response.status(CREATED).entity("Transaction id ${signedTx.id} committed to ledger.\n").build()
 
         } catch (ex: Throwable) {
@@ -114,15 +114,15 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
          * Initiates Company forwarding ClaimApplication to Underwriting.
          */
         @PUT
-        @Path("insurance-underwriting")
+        @Path("advancemoney-underwriting")
         @Consumes(MediaType.APPLICATION_JSON)
-        fun insuranceUnderwriting(@QueryParam ("fname") fname: String,
+        fun advanceMoneyUnderwriting(@QueryParam ("fname") fname: String,
                                   @QueryParam ("lname") lname: String,
-                                  @QueryParam("insuranceID") insuranceID: String,
+                                  @QueryParam("advanceMoneyID") advanceMoneyID: String,
                                   @QueryParam("type") type: String,
                                   @QueryParam("value") value:Int,
                                   @QueryParam("reason") reason: String,
-                                  @QueryParam("insuranceStatus") insuranceStatus: String,
+                                  @QueryParam("advanceMoneyStatus") advanceMoneyStatus: String,
                                   @QueryParam("claimID") claimID: String): Response
         {
             val underwriter =CordaX500Name.parse("O=PartyC, L=Paris, C=FR")
@@ -137,18 +137,18 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
                 return Response.status(BAD_REQUEST).entity("parameter 'Last Name' missing or has wrong format.\n").build()
             }
 
-            if(insuranceStatus==null){
+            if(advanceMoneyStatus==null){
                 return Response.status(BAD_REQUEST).entity("parameter 'Insurance Status' missing or has wrong format.\n").build()
             }
 
-            if(insuranceID==null){
+            if(advanceMoneyID==null){
                 return Response.status(BAD_REQUEST).entity("parameter 'Insurance id' missing or has wrong format.\n").build()
             }
 
 
             return try {
                 val signedTx = rpcOps
-                        .startFlowDynamic(UnderwritingCreationFlow.UnderwritingInitiator::class.java,underwriterNode,fname,lname,insuranceID,type,value,reason,insuranceStatus,claimID)
+                        .startFlowDynamic(UnderwritingCreationFlow.UnderwritingInitiator::class.java,underwriterNode,fname,lname,advanceMoneyID,type,value,reason,advanceMoneyStatus,claimID)
                         .returnValue.getOrThrow()
 
                 Response.status(CREATED).entity("Transaction id ${signedTx.id} committed to ledger.\n").build()
@@ -167,14 +167,14 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
         @Path("underwriting-evaluation")
         @Consumes(MediaType.APPLICATION_JSON)
         fun underwritingEvaluation(@QueryParam("referenceID") referenceID: String,
-                                    @QueryParam("insuranceStatus") insuranceStatus: String,
+                                    @QueryParam("advanceMoneyStatus") advanceMoneyStatus: String,
                                     @QueryParam("fname") fname: String,
                                     @QueryParam("lname") lname: String,
                                    @QueryParam("value") value: Int,
                                     @QueryParam("approvedAmount") approvedAmount: Int): Response {
 
             val companyName=CordaX500Name.parse("O=PartyB, L=New York, C=US")
-            val insurerNode = rpcOps.wellKnownPartyFromX500Name(companyName) ?:
+            val advanceMoneyNode = rpcOps.wellKnownPartyFromX500Name(companyName) ?:
             return Response.status(BAD_REQUEST).entity("Insurance Company named $companyName cannot be found.\n").build()
 
             if (approvedAmount > value) {
@@ -192,7 +192,7 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
                 return Response.status(BAD_REQUEST).entity("parameter 'Last Name' missing or has wrong format.\n").build()
             }
 
-            if(insuranceStatus==null){
+            if(advanceMoneyStatus==null){
                 return Response.status(BAD_REQUEST).entity("parameter 'Insurance Status' missing or has wrong format.\n").build()
             }
 
@@ -202,7 +202,7 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
 
             return try {
                 val signedTx = rpcOps
-                        .startTrackedFlowDynamic(UnderwritingResponseFlow.UnderwritingEvaluationInitiator::class.java, insurerNode,referenceID,insuranceStatus,fname,lname,value,approvedAmount)
+                        .startTrackedFlowDynamic(UnderwritingResponseFlow.UnderwritingEvaluationInitiator::class.java, advanceMoneyNode,referenceID,advanceMoneyStatus,fname,lname,value,approvedAmount)
                         .returnValue.getOrThrow()
                         Response.status(CREATED).entity("Transaction id ${signedTx.id} committed to ledger.\n").build()
 
@@ -217,8 +217,8 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
 
         @PUT
         @Path("company-response")
-        fun CompanyResponse(@QueryParam("insuranceStatus") insuranceStatus: String,
-                            @QueryParam("insuranceID") insuranceID: String,
+        fun CompanyResponse(@QueryParam("advanceMoneyStatus") advanceMoneyStatus: String,
+                            @QueryParam("advanceMoneyID") advanceMoneyID: String,
                             @QueryParam("fname") fname: String,
                             @QueryParam("lname") lname: String,
                             @QueryParam("approvedAmount") approvedAmount: Int): Response {
@@ -227,13 +227,13 @@ class ClaimApi(private val rpcOps: CordaRPCOps) {
             val applicantNode = rpcOps.wellKnownPartyFromX500Name(applicant) ?:
             return Response.status(BAD_REQUEST).entity("Company named $applicant cannot be found.\n").build()
 
-            if (insuranceID == null) {
-                return Response.status(BAD_REQUEST).entity("Insurance ID is missing . \n").build()
+            if (advanceMoneyID == null) {
+                return Response.status(BAD_REQUEST).entity("Advance Money ID is missing . \n").build()
             }
 
             return try {
                 val signedTx = rpcOps
-                        .startTrackedFlowDynamic(ClaimResponseFlow.ClaimResponseInitiator::class.java,applicantNode,fname,lname,approvedAmount,insuranceStatus,insuranceID)
+                        .startTrackedFlowDynamic(ClaimResponseFlow.ClaimResponseInitiator::class.java,applicantNode,fname,lname,approvedAmount,advanceMoneyStatus,advanceMoneyID)
                         .returnValue.getOrThrow()
                         Response.status(CREATED).entity("Transaction id ${signedTx.id} committed to ledger.\n").build()
 

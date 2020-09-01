@@ -1,6 +1,6 @@
-package com.insuranceClaim.plugin
+package com.advanceClaim.plugin
 
-import com.insuranceClaim.api.ClaimApi
+import com.advanceClaim.api.ClaimApi
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.webserver.services.WebServerPluginRegistry
 import java.util.function.Function
@@ -15,7 +15,7 @@ class ClaimPlugin : WebServerPluginRegistry {
      * A list of directories in the resources directory that will be served by Jetty under /web.
      */
     override val staticServeDirs = mapOf(
-            // This will serve the insuranceWeb directory in resources to /web/insuranceClaim
-            "insuranceClaim" to javaClass.classLoader.getResource("insuranceClaimWeb").toExternalForm()
+            // This will serve the advanceMoneyWeb directory in resources to /web/advanceMoneyClaim
+            "insuranceClaim" to javaClass.classLoader.getResource("advanceMoneyClaimWeb").toExternalForm()
     )
 }

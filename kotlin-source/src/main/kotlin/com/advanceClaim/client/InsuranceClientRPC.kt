@@ -1,6 +1,6 @@
-package com.insuranceClaim.client
+package com.advanceClaim.client
 
-import com.insuranceClaim.state.ClaimState
+import com.advanceClaim.state.ClaimState
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.utilities.NetworkHostAndPort
@@ -13,12 +13,12 @@ import org.slf4j.Logger
  **/
 
 fun main(args: Array<String>) {
-    InsuranceClientRPC().main(args)
+    AdvanceMoneyClientRPC().main(args)
 }
 
-private class InsuranceClientRPC {
+private class AdvanceMoneyClientRPC {
     companion object {
-        val logger: Logger = loggerFor<InsuranceClientRPC>()
+        val logger: Logger = loggerFor<AdvanceMoneyClientRPC>()
         private fun logState(state: StateAndRef<ClaimState>) = logger.info("{}", state.state.data)
     }
 

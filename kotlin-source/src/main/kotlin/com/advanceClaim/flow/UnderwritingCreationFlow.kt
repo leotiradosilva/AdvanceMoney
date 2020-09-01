@@ -1,10 +1,10 @@
-package com.insuranceClaim.flow
+package com.advanceClaim.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.insuranceClaim.contract.ClaimContract
-import com.insuranceClaim.contract.UnderwritingContract
-import com.insuranceClaim.state.ClaimState
-import com.insuranceClaim.state.UnderwritingState
+import com.advanceClaim.contract.ClaimContract
+import com.advanceClaim.contract.UnderwritingContract
+import com.advanceClaim.state.ClaimState
+import com.advanceClaim.state.UnderwritingState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -21,18 +21,18 @@ object UnderwritingCreationFlow {
     class UnderwritingInitiator(val underwriterNode: Party,
                                 val fname: String,
                                 val lname: String,
-                                val insuranceID: String,
+                                val advanceMoneyID: String,
                                 val type: String,
                                 val value:Int,
                                 val reason: String,
-                                var insuranceStatus: String,
+                                var advanceMoneyStatus: String,
                                 val claimID: String) : FlowLogic<SignedTransaction>() {
 
 
         companion object {
             object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
-            object INSURANCE_UNDERWRITER : ProgressTracker.Step("Insurance Company forwards application to their Underwriter ")
-            object INSURANCE_UNDERWRITER_EVALUATION : ProgressTracker.Step("Underwriter evaluates the Application and responds to Insurance Company")
+            object ADVANCEMONEY_UNDERWRITER : ProgressTracker.Step("Advance Money Company forwards application to their Underwriter ")
+            object ADVANCEMONEY_UNDERWRITER_EVALUATION : ProgressTracker.Step("Underwriter evaluates the Application and responds to Insurance Company")
             object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
             object GATHERING_SIGS : ProgressTracker.Step("Gathering the counterparty's signature.") {
                 override fun childProgressTracker() = CollectSignaturesFlow.tracker()
@@ -44,8 +44,8 @@ object UnderwritingCreationFlow {
 
             fun tracker() = ProgressTracker(
                     VERIFYING_TRANSACTION,
-                    INSURANCE_UNDERWRITER,
-                    INSURANCE_UNDERWRITER_EVALUATION,
+                    ADVANCEMONEY_UNDERWRITER,
+                    ADVANCEMONEY_UNDERWRITER_EVALUATION,
                     SIGNING_TRANSACTION,
                     GATHERING_SIGS,
                     FINALISING_TRANSACTION
@@ -64,10 +64,10 @@ object UnderwritingCreationFlow {
 
 
             // Stage 1.
-            progressTracker.currentStep = INSURANCE_UNDERWRITER
+            progressTracker.currentStep = ADVANCEMONEY_UNDERWRITER
             // Generate an unsigned transaction.
             var approvedAmount=0
-            insuranceStatus="PENDING"
+            advanceMoneyStatus="PENDING"
 
             val inputClaimState =serviceHub.vaultService.queryBy<ClaimState>()
                     .states.singleOrNull{it.state.data.linearId.id.toString()==claimID} ?: throw FlowException("No state found in the vault")
@@ -75,9 +75,9 @@ object UnderwritingCreationFlow {
             val address=inputClaimState.state.data.address
             val referenceID=inputClaimState.state.data.referenceID
             val id=inputClaimState.state.data.linearId
-            val newApplicationState= ClaimState(applicantNode,serviceHub.myInfo.legalIdentities.first(),fname,lname,address,insuranceID,type,value,reason,approvedAmount,"PENDING",referenceID,id)
+            val newApplicationState= ClaimState(applicantNode,serviceHub.myInfo.legalIdentities.first(),fname,lname,address,advanceMoneyID,type,value,reason,approvedAmount,"PENDING",referenceID,id)
 
-            val underwritingState = UnderwritingState(serviceHub.myInfo.legalIdentities.first(), underwriterNode, fname,lname,insuranceID,type,value,reason,approvedAmount,insuranceStatus)
+            val underwritingState = UnderwritingState(serviceHub.myInfo.legalIdentities.first(), underwriterNode, fname,lname,advanceMoneyID,type,value,reason,approvedAmount,advanceMoneyStatus)
 
             val inputCommand = Command(ClaimContract.Commands.ClaimTest(),newApplicationState.participants.map{it.owningKey})
             val txCommand = Command(UnderwritingContract.Commands.Underwriting(), underwritingState.participants.map { it.owningKey })

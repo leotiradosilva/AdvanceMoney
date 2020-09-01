@@ -1,6 +1,6 @@
-package com.insuranceClaim.contract
+package com.advanceClaim.contract
 
-import com.insuranceClaim.state.ClaimState
+import com.advanceClaim.state.ClaimState
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
 import net.corda.core.contracts.requireSingleCommand
@@ -24,7 +24,7 @@ import net.corda.core.transactions.LedgerTransaction
 class ClaimContract : Contract {
     companion object {
         @JvmStatic
-        val CLAIM_CONTRACT_ID = "com.insuranceClaim.contract.ClaimContract"
+        val CLAIM_CONTRACT_ID = "com.advanceClaim.contract.ClaimContract"
     }
 
     /**
@@ -62,7 +62,7 @@ class ClaimContract : Contract {
                     "Two output states should be created." using (tx.outputs.size == 2)
                     val input = tx.inputsOfType<ClaimState>().single()
                     val out = tx.outputsOfType<ClaimState>().single()
-                    "The Applicant and the Insurance Company cannot be the same entity." using (out.insurerNode != out.applicantNode)
+                    "The Applicant and the Advance Money Company cannot be the same entity." using (out.insurerNode != out.applicantNode)
                     "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
                 }

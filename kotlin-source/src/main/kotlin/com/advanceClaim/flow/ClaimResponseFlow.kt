@@ -1,10 +1,10 @@
-package com.insuranceClaim.flow
+package com.advanceClaim.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.insuranceClaim.contract.ClaimContract
-import com.insuranceClaim.contract.UnderwritingContract
-import com.insuranceClaim.state.ClaimState
-import com.insuranceClaim.state.UnderwritingState
+import com.advanceClaim.contract.ClaimContract
+import com.advanceClaim.contract.UnderwritingContract
+import com.advanceClaim.state.ClaimState
+import com.advanceClaim.state.UnderwritingState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -21,12 +21,12 @@ object ClaimResponseFlow {
                                    val fname: String,
                                    val lname: String,
                                    val approvedAmount: Int,
-                                   val insuranceStatus: String,
-                                   val insuranceID: String) : FlowLogic<SignedTransaction>() {
+                                   val advanceMoneyStatus: String,
+                                   val advanceMoneyID: String) : FlowLogic<SignedTransaction>() {
 
         companion object {
             object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
-            object COMPANY_RESPONSE : ProgressTracker.Step("Insurance Company responds to Applicant")
+            object COMPANY_RESPONSE : ProgressTracker.Step("Advance Money Company responds to Applicant")
             object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
             object GATHERING_SIGS : ProgressTracker.Step("Gathering the counterparty's signature.") {
                 override fun childProgressTracker() = CollectSignaturesFlow.tracker()
@@ -58,20 +58,20 @@ object ClaimResponseFlow {
             // Stage 1.
             progressTracker.currentStep = COMPANY_RESPONSE
             // Generate an unsigned transaction.
-            val inputCompanyResponseState = serviceHub.vaultService.queryBy<ClaimState>().states.singleOrNull{ it.state.data.insuranceID == insuranceID } ?: throw FlowException("No state found in the vault")
+            val inputCompanyResponseState = serviceHub.vaultService.queryBy<ClaimState>().states.singleOrNull{ it.state.data.insuranceID == advanceMoneyID } ?: throw FlowException("No state found in the vault")
             val value= inputCompanyResponseState.state.data.value
             val address = inputCompanyResponseState.state.data.address
             val claimID =inputCompanyResponseState.state.data.linearId
             val type=inputCompanyResponseState.state.data.type
             val reason=inputCompanyResponseState.state.data.reason
 
-            val inputUnderwritingState = serviceHub.vaultService.queryBy<UnderwritingState>().states.singleOrNull{ it.state.data.insuranceID == insuranceID } ?: throw FlowException("No state found in the vault")
+            val inputUnderwritingState = serviceHub.vaultService.queryBy<UnderwritingState>().states.singleOrNull{ it.state.data.insuranceID == advanceMoneyID } ?: throw FlowException("No state found in the vault")
             val referenceID=inputUnderwritingState.state.data.linearId.id.toString()
             val underwriterNode= inputUnderwritingState.state.data.underwriterNode
             val id= inputUnderwritingState.state.data.linearId
-            val status= "$insuranceStatus ,Sent"
-            val outputUnderwritingStateRef= UnderwritingState(serviceHub.myInfo.legalIdentities.first(),underwriterNode,fname,lname,insuranceID,type,value,reason,approvedAmount,status,id)
-            val claimState = ClaimState(applicantNode,serviceHub.myInfo.legalIdentities.first(),fname,lname,address,insuranceID,type,value,reason,approvedAmount, insuranceStatus, referenceID,claimID)
+            val status= "$advanceMoneyStatus ,Sent"
+            val outputUnderwritingStateRef= UnderwritingState(serviceHub.myInfo.legalIdentities.first(),underwriterNode,fname,lname,advanceMoneyID,type,value,reason,approvedAmount,status,id)
+            val claimState = ClaimState(applicantNode,serviceHub.myInfo.legalIdentities.first(),fname,lname,address,advanceMoneyID,type,value,reason,approvedAmount, advanceMoneyStatus, referenceID,claimID)
             val txCommand = Command(ClaimContract.Commands.ClaimResponse(), claimState.participants.map { it.owningKey })
             val statusCommand=Command(UnderwritingContract.Commands.UnderwritingStatus(),outputUnderwritingStateRef.participants.map { it.owningKey })
 

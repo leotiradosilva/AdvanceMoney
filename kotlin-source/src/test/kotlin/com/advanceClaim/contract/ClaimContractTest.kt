@@ -1,8 +1,8 @@
-package com.insuranceClaim.contract
+package com.advanceClaim.contract
 
-import com.insuranceClaim.contract.ClaimContract.Companion.CLAIM_CONTRACT_ID
-import com.insuranceClaim.state.ClaimState
-import com.insuranceClaim.state.UnderwritingState
+import com.advanceClaim.contract.ClaimContract.Companion.CLAIM_CONTRACT_ID
+import com.advanceClaim.state.ClaimState
+import com.advanceClaim.state.UnderwritingState
 import net.corda.core.identity.CordaX500Name
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices

@@ -1,4 +1,4 @@
-package com.insuranceClaim.schema
+package com.advanceClaim.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
@@ -8,25 +8,25 @@ import javax.persistence.Entity
 import javax.persistence.Table
 
 /**
- * The family of schemas for InsuranceState.
+ * The family of schemas for advanceMoneyState.
  */
 object ClaimSchema
 
 /**
- * A InsuranceState schema.
+ * A advanceMoneyState schema.
  */
 object ClaimSchemaV1 : MappedSchema(
         schemaFamily = ClaimSchema.javaClass,
         version = 1,
         mappedTypes = listOf(PersistentClaim::class.java)) {
     @Entity
-    @Table(name = "insurance_states")
+    @Table(name = "advanceMoney_states")
     class PersistentClaim(
             @Column(name = "applicant")
             var applicant: String,
 
-            @Column(name = "insurer")
-            var insurer: String,
+            @Column(name = "advanceMoney")
+            var advanceMoney: String,
 
             @Column(name = "fname")
             var fname: String,
@@ -37,7 +37,7 @@ object ClaimSchemaV1 : MappedSchema(
             @Column(name = "address")
             var address: String,
 
-            @Column(name= "insuranceID")
+            @Column(name= "advanceMoneyID")
             var insuranceID: String,
 
             @Column(name= "type")
@@ -52,7 +52,7 @@ object ClaimSchemaV1 : MappedSchema(
             @Column(name = "approvedAmount")
             var approvedAmount: Int,
 
-            @Column(name = "insuranceStatus")
+            @Column(name = "advanceMoneyStatus")
             var insuranceStatus: String,
 
             @Column(name = "referenceID")

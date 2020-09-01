@@ -1,7 +1,6 @@
-package com.insuranceClaim.contract
+package com.advanceClaim.contract
 
-import com.insuranceClaim.state.ClaimState
-import com.insuranceClaim.state.UnderwritingState
+import com.advanceClaim.state.UnderwritingState
 import net.corda.core.contracts.*
 import net.corda.core.transactions.LedgerTransaction
 
@@ -23,7 +22,7 @@ import net.corda.core.transactions.LedgerTransaction
 class UnderwritingContract : Contract {
     companion object {
         @JvmStatic
-            val UNDERWRITING_CONTRACT_ID = "com.insuranceClaim.contract.UnderwritingContract"
+            val UNDERWRITING_CONTRACT_ID = "com.advanceClaim.contract.UnderwritingContract"
     }
 
         /**
@@ -40,7 +39,7 @@ class UnderwritingContract : Contract {
                         "Underwriting Transaction should have one input." using (tx.inputs.size==1)
                         "Two output states should be created." using (tx.outputs.size == 2)
                         val out = tx.outputsOfType<UnderwritingState>().single()
-                        "The Insurance Company and the Underwriter Party cannot be same entity." using (out.insurerNode != out.underwriterNode)
+                        "The Advance Money Company and the Underwriter Party cannot be same entity." using (out.insurerNode != out.underwriterNode)
                         "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
                     }
@@ -52,7 +51,7 @@ class UnderwritingContract : Contract {
                         "Only one output state should be created." using (tx.outputs.size == 1)
                         val input = tx.inputsOfType<UnderwritingState>().single()
                         val out = tx.outputsOfType<UnderwritingState>().single()
-                        "The Insurance Company and the Underwriter Party cannot be same entity." using (out.insurerNode != out.underwriterNode)
+                        "The Advance Money Company and the Underwriter Party cannot be same entity." using (out.insurerNode != out.underwriterNode)
                         "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
                     }

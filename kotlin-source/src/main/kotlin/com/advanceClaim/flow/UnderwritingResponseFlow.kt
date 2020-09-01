@@ -1,8 +1,8 @@
-package com.insuranceClaim.flow
+package com.advanceClaim.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.insuranceClaim.contract.UnderwritingContract
-import com.insuranceClaim.state.UnderwritingState
+import com.advanceClaim.contract.UnderwritingContract
+import com.advanceClaim.state.UnderwritingState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
@@ -16,9 +16,9 @@ import net.corda.core.utilities.ProgressTracker
 object UnderwritingResponseFlow {
     @InitiatingFlow
     @StartableByRPC
-    class UnderwritingEvaluationInitiator(val insurerNode: Party,
+    class UnderwritingEvaluationInitiator(val advanceMoneyNode: Party,
                                           val referenceID: String,
-                                          val insuranceStatus: String,
+                                          val advanceMoneyStatus: String,
                                           val fname: String,
                                           val lname: String,
                                           val value: Int,
@@ -26,7 +26,7 @@ object UnderwritingResponseFlow {
 
         companion object {
             object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
-            object INSURANCE_UNDERWRITER_EVALUATION : ProgressTracker.Step("Underwriter evaluates the Application and responds to Insurance Company")
+            object ADVANCEMONEY_UNDERWRITER_EVALUATION : ProgressTracker.Step("Underwriter evaluates the Application and responds to Advance Money Company")
             object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
             object GATHERING_SIGS : ProgressTracker.Step("Gathering the counterparty's signature.") {
                 override fun childProgressTracker() = CollectSignaturesFlow.tracker()
@@ -38,7 +38,7 @@ object UnderwritingResponseFlow {
 
             fun tracker() = ProgressTracker(
                     VERIFYING_TRANSACTION,
-                    INSURANCE_UNDERWRITER_EVALUATION,
+                    ADVANCEMONEY_UNDERWRITER_EVALUATION,
                     SIGNING_TRANSACTION,
                     GATHERING_SIGS,
                     FINALISING_TRANSACTION
@@ -56,7 +56,7 @@ object UnderwritingResponseFlow {
             val notary = serviceHub.networkMapCache.notaryIdentities[0];
 
             // Stage 1.
-            progressTracker.currentStep = INSURANCE_UNDERWRITER_EVALUATION
+            progressTracker.currentStep = ADVANCEMONEY_UNDERWRITER_EVALUATION
             // Generate an unsigned transaction.
             val referenceId = UniqueIdentifier.fromString(referenceID)
             var inputUnderwritingState = serviceHub.vaultService.queryBy<UnderwritingState>().states.singleOrNull{ it.state.data.insuranceStatus == "PENDING" && it.state.data.linearId.id.toString() == referenceId.id.toString() } ?: throw FlowException("No state found in the vault")
@@ -64,7 +64,7 @@ object UnderwritingResponseFlow {
             val type=inputUnderwritingState.state.data.type
             var reason=inputUnderwritingState.state.data.reason
 
-            val underwritingState = UnderwritingState(insurerNode,serviceHub.myInfo.legalIdentities.first(), fname,lname,insuranceID,type,value,reason,approvedAmount,insuranceStatus,referenceId)
+            val underwritingState = UnderwritingState(advanceMoneyNode,serviceHub.myInfo.legalIdentities.first(), fname,lname,insuranceID,type,value,reason,approvedAmount,advanceMoneyStatus,referenceId)
             val ApplicantName: String = "$fname $lname"
             //Check for Defaulter list
             val defaulter = arrayListOf("Borrower One", "Borrower Two","Borrower Three")
@@ -95,7 +95,7 @@ object UnderwritingResponseFlow {
             // Stage 4.
             progressTracker.currentStep = GATHERING_SIGS
             // Send the state to the counterparty, and receive it back with their signature.
-            val otherPartyFlow = initiateFlow(insurerNode)
+            val otherPartyFlow = initiateFlow(advanceMoneyNode)
             val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartyFlow), GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.

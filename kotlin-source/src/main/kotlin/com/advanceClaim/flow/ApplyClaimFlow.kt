@@ -1,8 +1,8 @@
-package com.insuranceClaim.flow
+package com.advanceClaim.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import com.insuranceClaim.contract.ClaimContract
-import com.insuranceClaim.state.ClaimState
+import com.advanceClaim.contract.ClaimContract
+import com.advanceClaim.state.ClaimState
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -14,15 +14,15 @@ import net.corda.core.utilities.ProgressTracker
 object ApplyClaimFlow {
     @InitiatingFlow
     @StartableByRPC
-    class ClaimInitiator(val insurerNode: Party,
+    class ClaimInitiator(val advanceMoneyNode: Party,
                              val value: Int,
                              val reason: String,
                              val fname: String,
                              val lname: String,
                              val address: String,
-                             val insuranceID: String,
+                             val advanceMoneyID: String,
                              val type: String,
-                             val insuranceStatus: String) : FlowLogic<SignedTransaction>() {
+                             val advanceMoneyStatus: String) : FlowLogic<SignedTransaction>() {
 
         /**
          * The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
@@ -31,9 +31,9 @@ object ApplyClaimFlow {
         companion object {
             object CLAIM_APPLY : ProgressTracker.Step("Applicant sends Insurance application to the Company")
             object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
-            object INSURANCE_UNDERWRITER : ProgressTracker.Step("Insurance Company forwards application to their Underwriter ")
-            object INSURANCE_UNDERWRITER_EVALUATION : ProgressTracker.Step("Underwriter evaluates the Application and responds to Insurance Company")
-            object COMPANY_RESPONSE : ProgressTracker.Step("Insurance Company responds to Applicant")
+            object ADVANCEMONEY_UNDERWRITER : ProgressTracker.Step("Advance Money Company forwards application to their Underwriter ")
+            object ADVANCEMONEY_UNDERWRITER_EVALUATION : ProgressTracker.Step("Underwriter evaluates the Application and responds to Insurance Company")
+            object COMPANY_RESPONSE : ProgressTracker.Step("Advance Money Company responds to Applicant")
             object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
             object GATHERING_SIGS : ProgressTracker.Step("Gathering the counterparty's signature.") {
                 override fun childProgressTracker() = CollectSignaturesFlow.tracker()
@@ -46,8 +46,8 @@ object ApplyClaimFlow {
             fun tracker() = ProgressTracker(
                     CLAIM_APPLY,
                     VERIFYING_TRANSACTION,
-                    INSURANCE_UNDERWRITER,
-                    INSURANCE_UNDERWRITER_EVALUATION,
+                    ADVANCEMONEY_UNDERWRITER,
+                    ADVANCEMONEY_UNDERWRITER_EVALUATION,
                     COMPANY_RESPONSE,
                     SIGNING_TRANSACTION,
                     GATHERING_SIGS,
@@ -70,7 +70,7 @@ object ApplyClaimFlow {
             // Generate an unsigned transaction.
             val referenceID:String = "Not Defined"
             val approvedAmount=0
-            val claimState = ClaimState(serviceHub.myInfo.legalIdentities.first(),insurerNode,fname,lname,address,insuranceID,type,value,reason,approvedAmount,insuranceStatus,referenceID)
+            val claimState = ClaimState(serviceHub.myInfo.legalIdentities.first(),advanceMoneyNode,fname,lname,address,advanceMoneyID,type,value,reason,approvedAmount,advanceMoneyStatus,referenceID)
             val initiateClaimCommand = Command(ClaimContract.Commands.ClaimApplication(),claimState.participants.map { it.owningKey })
             val txBuilder = TransactionBuilder(notary)
                     .addOutputState(claimState, ClaimContract.CLAIM_CONTRACT_ID)
@@ -89,7 +89,7 @@ object ApplyClaimFlow {
             // Stage 4.
             progressTracker.currentStep = GATHERING_SIGS
             // Send the state to the Insurance Company, and receive it back with their signature.
-            val otherPartyFlow = initiateFlow(insurerNode)
+            val otherPartyFlow = initiateFlow(advanceMoneyNode)
             val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartyFlow), GATHERING_SIGS.childProgressTracker()))
 
             // Stage 5.

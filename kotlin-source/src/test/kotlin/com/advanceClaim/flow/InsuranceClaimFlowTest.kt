@@ -1,4 +1,4 @@
-package com.insuranceClaim.flow
+package com.advanceClaim.flow
 
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.core.singleIdentity

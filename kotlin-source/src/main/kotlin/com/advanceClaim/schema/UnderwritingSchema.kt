@@ -1,4 +1,4 @@
-package com.insuranceClaim.schema
+package com.advanceClaim.schema
 
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
@@ -22,8 +22,8 @@ object UnderwritingSchemaVI : MappedSchema(
     @Entity
     @Table(name = "underwriting_states")
     class PersistentUnderwriting(
-            @Column(name = "insurer")
-            var insurer: String,
+            @Column(name = "advanceMoney")
+            var advanceMoney: String,
 
             @Column(name = "underwriter")
             var underwriter: String,
@@ -34,8 +34,8 @@ object UnderwritingSchemaVI : MappedSchema(
             @Column(name = "lname")
             var lname: String,
 
-            @Column(name = "insuranceID")
-            var insuranceID: String,
+            @Column(name = "advanceMoneyID")
+            var advanceMoneyID: String,
 
             @Column(name = "type")
             var type: String,
@@ -49,8 +49,8 @@ object UnderwritingSchemaVI : MappedSchema(
             @Column(name = "approvedAmount")
             var approvedAmount: Int,
 
-            @Column(name = "insuranceStatus")
-            var insuranceStatus: String,
+            @Column(name = "advanceMoneyStatus")
+            var advanceMoneyStatus: String,
 
             @Column(name = "referenceID")
             var referenceID: UUID
