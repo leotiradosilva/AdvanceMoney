@@ -16,11 +16,12 @@ The CorDapp also comes with an API and UI layer that allows you to do all of the
 
 # Instructions for setting up
 
-1. `git clone https://github.com/leotiradosilva/AdvanceMoney
-2. `cd AdvanceMoney`
-3. `./gradlew deployNodes` - building may take upto a minute (it's much quicker if you already have the Corda binaries)./r
-4. `cd kotlin-source/build/nodes`
-5. `./runnodes`
+1. `follow this steps to setup your pc https://docs.corda.net/docs/corda-os/4.5/getting-set-up.html 
+2. `git clone https://github.com/leotiradosilva/AdvanceMoney
+3. `cd AdvanceMoney`
+4. `./gradlew deployNodes` - building may take upto a minute (it's much quicker if you already have the Corda binaries)./r
+5. `cd kotlin-source/build/nodes`
+6. `./runnodes`
 
 At this point you will have a notary node running as well as three other nodes and their corresponding webservers. There should be 7 console windows in total. One for the notary and two for each of the three nodes. The nodes take about 20-30 seconds to finish booting up.
 
