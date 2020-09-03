@@ -3,6 +3,8 @@
 This CorDapp is an example of how Advance Money Claim can be settled confidentially. For example, an Applicant can submit an Advance Money claim
 with the Advance Money Company giving required details and claim Amount. The Advance Money Company can then forward the Claim request to the Underwriting agency.
 Communication between any of the Parties or any data exchanged remains private to Parties. Applicant does not hear what Advance Money Company and Underwriter does.
+Notes: Underwriter is a middle step to validate the request to advance money, in case of frauds and wrong transactions, and works like a safe mode, in case of Advance Money Company stop listen the requests.
+In this case the process of advance money will be transparent to the client.
 
 The CorDapp includes:
 
