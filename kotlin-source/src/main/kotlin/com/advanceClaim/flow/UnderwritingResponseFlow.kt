@@ -59,7 +59,7 @@ object UnderwritingResponseFlow {
             progressTracker.currentStep = ADVANCEMONEY_UNDERWRITER_EVALUATION
             // Generate an unsigned transaction.
             val referenceId = UniqueIdentifier.fromString(referenceID)
-            var inputUnderwritingState = serviceHub.vaultService.queryBy<UnderwritingState>().states.singleOrNull{ it.state.data.insuranceStatus == "PENDING" && it.state.data.linearId.id.toString() == referenceId.id.toString() } ?: throw FlowException("No state found in the vault")
+            var inputUnderwritingState = serviceHub.vaultService.queryBy<UnderwritingState>().states.singleOrNull{ it.state.data.advanceMoneyStatus == "PENDING" && it.state.data.linearId.id.toString() == referenceId.id.toString() } ?: throw FlowException("No state found in the vault")
             val insuranceID=inputUnderwritingState.state.data.insuranceID
             val type=inputUnderwritingState.state.data.type
             var reason=inputUnderwritingState.state.data.reason
@@ -69,10 +69,10 @@ object UnderwritingResponseFlow {
             //Check for Defaulter list
             val defaulter = arrayListOf("Borrower One", "Borrower Two","Borrower Three")
             if(defaulter.contains(ApplicantName)) {
-                underwritingState.insuranceStatus="REJECTED"
+                underwritingState.advanceMoneyStatus="REJECTED"
             }
             else {
-                underwritingState.insuranceStatus="ACCEPTED"
+                underwritingState.advanceMoneyStatus="ACCEPTED"
             }
 
 

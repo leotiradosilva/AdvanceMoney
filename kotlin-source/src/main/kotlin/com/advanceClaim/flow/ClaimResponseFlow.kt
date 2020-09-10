@@ -58,7 +58,7 @@ object ClaimResponseFlow {
             // Stage 1.
             progressTracker.currentStep = COMPANY_RESPONSE
             // Generate an unsigned transaction.
-            val inputCompanyResponseState = serviceHub.vaultService.queryBy<ClaimState>().states.singleOrNull{ it.state.data.insuranceID == advanceMoneyID } ?: throw FlowException("No state found in the vault")
+            val inputCompanyResponseState = serviceHub.vaultService.queryBy<ClaimState>().states.singleOrNull{ it.state.data.advanceMoneyID == advanceMoneyID } ?: throw FlowException("No state found in the vault")
             val value= inputCompanyResponseState.state.data.value
             val address = inputCompanyResponseState.state.data.address
             val claimID =inputCompanyResponseState.state.data.linearId

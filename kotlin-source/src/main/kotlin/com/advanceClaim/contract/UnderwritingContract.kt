@@ -39,7 +39,7 @@ class UnderwritingContract : Contract {
                         "Underwriting Transaction should have one input." using (tx.inputs.size==1)
                         "Two output states should be created." using (tx.outputs.size == 2)
                         val out = tx.outputsOfType<UnderwritingState>().single()
-                        "The Advance Money Company and the Underwriter Party cannot be same entity." using (out.insurerNode != out.underwriterNode)
+                        "The Advance Money Company and the Underwriter Party cannot be same entity." using (out.advanceMoneyNode != out.underwriterNode)
                         "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
                     }
@@ -51,7 +51,7 @@ class UnderwritingContract : Contract {
                         "Only one output state should be created." using (tx.outputs.size == 1)
                         val input = tx.inputsOfType<UnderwritingState>().single()
                         val out = tx.outputsOfType<UnderwritingState>().single()
-                        "The Advance Money Company and the Underwriter Party cannot be same entity." using (out.insurerNode != out.underwriterNode)
+                        "The Advance Money Company and the Underwriter Party cannot be same entity." using (out.advanceMoneyNode != out.underwriterNode)
                         "All of the participants must be signers." using (command.signers.containsAll(out.participants.map { it.owningKey }))
 
                     }
